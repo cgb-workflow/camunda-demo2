@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: camunda-demo
+  jackson:
+    #设置返回前端的参数为驼峰的转换形式
+    property-naming-strategy: SNAKE_CASE
+    #日期格式化
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  #数据源配置
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/camunda?serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: root123
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+camunda:
+  bpm:
+    #配置账户密码来访问Camunda自带的管理界面
+    admin-user:
+      id: kermit
+      password: superSecret
+      first-name: kermit
+    filter:
+      create: All tasks
+    #指定数据库类型
+    database:
+      type: mysql
+      #schema-update: drop-create
+    #禁止自动部署resources下面的bpmn文件
+    auto-deployment-enabled: false
+
+    #禁止index跳转到Camunda自带的管理界面，默认true
+#    webapp:
+#      index-redirect-enabled: false
