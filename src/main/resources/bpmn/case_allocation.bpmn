@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0grwhsl" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="case_allocation" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="开始">
+      <bpmn:outgoing>Flow_0ynckoc</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0ynckoc" sourceRef="StartEvent_1" targetRef="Activity_0j4z7vm" />
+    <bpmn:sequenceFlow id="Flow_1k3170v" sourceRef="Activity_0j4z7vm" targetRef="Event_16r5rrh" />
+    <bpmn:endEvent id="Event_16r5rrh">
+      <bpmn:incoming>Flow_1k3170v</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_0j4z7vm" name="入催自动分单" camunda:candidateUsers="${candidateUsers}">
+      <bpmn:incoming>Flow_0ynckoc</bpmn:incoming>
+      <bpmn:outgoing>Flow_1k3170v</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="case_allocation">
+      <bpmndi:BPMNEdge id="Flow_0ynckoc_di" bpmnElement="Flow_0ynckoc">
+        <di:waypoint x="198" y="117" />
+        <di:waypoint x="386" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k3170v_di" bpmnElement="Flow_1k3170v">
+        <di:waypoint x="486" y="117" />
+        <di:waypoint x="712" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1mj6op7_di" bpmnElement="Activity_0j4z7vm">
+        <dc:Bounds x="386" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_16r5rrh_di" bpmnElement="Event_16r5rrh">
+        <dc:Bounds x="712" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="162" y="99" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="169" y="142" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

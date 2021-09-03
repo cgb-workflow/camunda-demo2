@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <properties resource="generatorConfig.properties" />
+
+    <context id="MysqlTables" targetRuntime="MyBatis3">
+
+        <!-- 插件 -->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+
+
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/camunda"
+                        userId="root"
+                        password="root123">
+            <property name="useInformationSchema" value="true"/>
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="org.hgq.domain.base"
+                            targetProject="D:/dev/work/test/camunda-demo/src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+            <property name="exampleTargetPackage" value="org.hgq.domain.base"/>
+            <property name="exampleTargetProject" value="D:/dev/work/test/camunda-demo/src/main/java"/>
+            <property name="rootClass" value="org.hgq.domain.base.BaseEntity"/>
+        </javaModelGenerator>
+
+        <!-- 生成DAO的包名和位置 -->
+        <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="org.hgq.mapper.base"
+                             targetProject="D:/dev/work/test/camunda-demo/src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+
+
+
+        <table tableName="collection_case" domainObjectName="CollectionCase">
+            <columnOverride column="deleted" property="deleted" javaType="java.lang.Boolean"></columnOverride>
+            <columnOverride column="allocation_time" property="allocationTime"
+                            javaType="java.time.Instant"></columnOverride>
+            <columnOverride column="collection_log_time" property="collectionLogTime"
+                            javaType="java.time.Instant"></columnOverride>
+            <columnOverride column="create_time" property="createTime" javaType="java.time.Instant"></columnOverride>
+            <columnOverride column="update_time" property="updateTime" javaType="java.time.Instant"></columnOverride>
+        </table>
+        <table tableName="collection_log" domainObjectName="CollectionLog">
+            <columnOverride column="deleted" property="deleted" javaType="java.lang.Boolean"></columnOverride>
+            <columnOverride column="call_time" property="callTime" javaType="java.time.Instant"></columnOverride>
+            <columnOverride column="create_time" property="createTime" javaType="java.time.Instant"></columnOverride>
+            <columnOverride column="update_time" property="updateTime" javaType="java.time.Instant"></columnOverride>
+        </table>
+
+
+    </context>
+</generatorConfiguration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
