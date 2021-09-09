@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -48,13 +47,9 @@ public class CollectionCaseDemo {
             CollectionCase collectionCase = new CollectionCase();
             collectionCase.setId((long) i);
             collectionCase.setUserNo(i + "");
-            collectionCase.setUserName("user" + i);
-            collectionCase.setIdCard(i + "");
-            collectionCase.setMobile(i + "");
-            collectionCase.setCaseSource((byte) 1);
+            collectionCase.setProductCode(1);
             collectionCase.setProductCode(1);
             collectionCase.setOverdueDays(-2);
-            collectionCase.setDebtAmount(new BigDecimal(i));
 
 //            collectionCase.setLifecycle((byte)1);
 //            collectionCase.setAllocationTime(Instant.now());
@@ -105,10 +100,10 @@ public class CollectionCaseDemo {
 
             aCase.setProcessInstanceId(processInstanceId);
 
-            aCase.setLifecycle((byte) 1);
+
 
             aCase.setAllocationTime(Instant.now());
-            aCase.setEmpNo(emp);
+            aCase.setEmpId(Long.valueOf(emp));
             saveCase(aCase);
 
         }

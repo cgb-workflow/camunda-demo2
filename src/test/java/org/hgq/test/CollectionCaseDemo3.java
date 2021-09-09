@@ -23,11 +23,11 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * @description:
  * @author: huangguoqiang
- * @create: 2021-08-19 11:41
+ * @create: 2021-09-04 11:17
  **/
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = App.class)
-public class CollectionCaseDemo2 {
+public class CollectionCaseDemo3 {
 
 
     @Autowired
@@ -37,17 +37,23 @@ public class CollectionCaseDemo2 {
 
     @Autowired
     CollectionCaseMapper caseMapper;
+
     @Autowired
     TaskService taskService;
+
+    @Autowired
+    ProcessEngine engine;
 
     //入催数据
     public List<CollectionCase> getCollectionCaseList() {
         List<CollectionCase> list = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             CollectionCase collectionCase = new CollectionCase();
-            collectionCase.setId((long) i);
+            collectionCase.setId(Long.valueOf("8000"+i));
             collectionCase.setUserNo(i + "");
-            collectionCase.setProductCode(1);
+            collectionCase.setUserId((long)i);
+
+            collectionCase.setProductSource((byte) 1);
             collectionCase.setProductCode(1);
             collectionCase.setOverdueDays(-2);
 
@@ -71,7 +77,7 @@ public class CollectionCaseDemo2 {
         Queue<String> candidateUsers = new LinkedBlockingDeque();
         for (int i = 1; i <= 5; i++) {
             //入队
-            candidateUsers.offer("催收员" + i);
+            candidateUsers.offer("1000" + i);
         }
         return candidateUsers;
     }
@@ -94,12 +100,12 @@ public class CollectionCaseDemo2 {
 
 
             Map<String, Object> variables = new HashMap<>();
-            variables.put("candidateUsers", emp);
-            String processInstanceId = null;// startProcessInstanceBykey(businessKey, variables);
+            variables.put("candidateEmps", emp);
+
+            String processInstanceId = startProcessInstanceBykey(businessKey, variables);
 
 
             aCase.setProcessInstanceId(processInstanceId);
-
 
             aCase.setAllocationTime(Instant.now());
             aCase.setEmpId(Long.valueOf(emp));
@@ -109,6 +115,21 @@ public class CollectionCaseDemo2 {
 
     }
 
+    /**
+     * 启动流程实例
+     */
+    public String startProcessInstanceBykey(String businessKey, Map<String, Object> variables) {
+        String processDefinitionKey = "collection_case_allocation";
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinitionKey, businessKey, variables);
+
+        System.out.println("业务key==" + processInstance.getBusinessKey());
+        System.out.println("流程定义id：" + processInstance.getProcessDefinitionId());
+        System.out.println("流程实例id：" + processInstance.getId());
+        return processInstance.getId();
+    }
+
+
+
     private void saveCase(CollectionCase aCase) {
         caseMapper.insertSelective(aCase);
     }
@@ -116,10 +137,13 @@ public class CollectionCaseDemo2 {
 
     @Test
     public void createDeployment() {
+
+         //engine.close();
+
         DeploymentBuilder deploymentBuilder = repositoryService.createDeployment();
         Deployment deploy = deploymentBuilder
-                .name("案件分配流程2")
-                .addClasspathResource("bpmn/case_allocation2.bpmn").deploy();
+                .name("案件分配流程")
+                .addClasspathResource("bpmn/prod/collection_case_allocation.bpmn").deploy();
 
         System.out.println("deploymentBuilder" + deploymentBuilder);
         System.out.println("deploy" + deploy);
@@ -160,9 +184,9 @@ public class CollectionCaseDemo2 {
     @Test
     public void findGroupTaskList() {
         // 流程定义key
-        String processDefinitionKey = "case_allocation";
+        String processDefinitionKey = "collection_case_allocation";
         // 任务候选人
-        String candidateUser = "催收员1";
+        String candidateUser = "10001";
 
         //查询组任务
         List<Task> list = taskService.createTaskQuery()
@@ -192,7 +216,7 @@ public class CollectionCaseDemo2 {
         //要拾取的任务id
         String taskId = "6302";
         //任务候选人id
-        String userId = "lisi";
+        String userId = "10001";
         //拾取任务
         //即使该用户不是候选人也能拾取(建议拾取时校验是否有资格)
         //校验该用户有没有拾取任务的资格

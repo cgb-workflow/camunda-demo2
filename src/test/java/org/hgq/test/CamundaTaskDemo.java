@@ -34,11 +34,14 @@ public class CamundaTaskDemo {
         //分配到任务的人
         String assignee = "张三";
         List<Task> list = taskQuery.taskAssignee(assignee).list();
+
         for (int i = 0; i < list.size(); i++) {
             Task task = list.get(i);
             System.out.println(task.getId());
         }
     }
+
+
 
     /**
      * 完成个人任务

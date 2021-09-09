@@ -16,9 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @description: 操作用户
@@ -74,6 +73,46 @@ public class CamundaUserDemo {
         userEntity.setLastName("zcc");
         userEntity.setPassword("1");
         identityService.saveUser(userEntity);
+    }
+
+    /**
+     * 密码加密的方式
+     */
+    @Test
+    public void saveUser3() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId("zcc3");
+        userEntity.setPassword("1");
+        identityService.saveUser(userEntity);
+    }
+
+    @Test
+    public void test22() {
+        List<String> employees = Arrays.asList("wangwu", "lisi", "zhangsan");
+        Queue<String> queue = new LinkedBlockingQueue<>(employees);
+
+        for (String s : queue) {
+            System.out.println(s);
+        }
+        System.out.println("================");
+
+        String s1 = queue.poll();
+        System.out.println(s1);
+        queue.offer(s1);
+
+        String s2 = queue.poll();
+        System.out.println(s2);
+        queue.offer(s2);
+
+/*        String s3 = queue.poll();
+        System.out.println(s3);
+        queue.offer(s3);*/
+
+        System.out.println("================");
+        for (String s : queue) {
+            System.out.println(s);
+        }
+
     }
 
     /**
@@ -133,8 +172,6 @@ public class CamundaUserDemo {
             System.out.println(user.getEmail());
         }
 
-        UserQuery userQuery2 = identityService.createUserQuery();
-        userQuery2.memberOfGroup("dep");
 
     }
 
@@ -179,6 +216,7 @@ public class CamundaUserDemo {
             System.out.println(group.getId());
             System.out.println(group.getName());
             System.out.println(group.getType());
+            System.out.println("==================================");
         }
     }
 
@@ -191,6 +229,16 @@ public class CamundaUserDemo {
         String userId = "zcc2";
         String groupId = "group1";
         identityService.createMembership(userId, groupId);
+    }
+
+    @Test
+    public void createUserQueryMemberOfGroup() {
+        UserQuery userQuery = identityService.createUserQuery();
+        List<User> users = userQuery.memberOfGroup("group1").list();
+        for (User user : users) {
+            System.out.println(user.getId());
+        }
+
     }
 
     /**
@@ -251,7 +299,7 @@ public class CamundaUserDemo {
     public void createUserQueryMemberOfTenant() {
         String tenantId = "A";
         UserQuery userQuery = identityService.createUserQuery();
-        userQuery.memberOfGroup()
+        // userQuery.memberOfGroup()
         List<User> list = userQuery.memberOfTenant(tenantId).list();
         for (int i = 0; i < list.size(); i++) {
             User user = list.get(i);
