@@ -70,6 +70,81 @@ public class LeaveDemo {
         System.out.println(collect);
     }
 
+    @Test
+    public void test22() {
+        Person zhangsan = new Person(1, "zhangsan", 22);
+
+        Ha h = new Ha();
+        h.setP(zhangsan);
+
+        Person p = h.getP();
+        p.setAge(36);
+        p.setName("zs");
+
+        System.out.println("https://flm-all.obs.ap-southeast-2.myhuaweicloud.com:443/fslidcard/9edbe9c2-b3fd-4300-903b-36296be27213.jpg?AccessKeyId=WZ35JXPLW0U3HHDDMWKC&Expires=1634947796&Signature=RnZMIP8SY3r%2Bf%2Bud%2FoNew24U9%2B8%3D".length());
+
+    }
+
+    /*  public static void main(String[] args) {
+          //String ur ="https:\\\\/\\\\/flm-all.obs.ap-southeast-2.myhuaweicloud.com:443\\\\/fslidcard\\\\/9edbe9c2-b3fd-4300-903b-36296be27213.jpg?AccessKeyId=WZ35JXPLW0U3HHDDMWKC&Expires=1634947796&Signature=RnZMIP8SY3r%2Bf%2Bud%2FoNew24U9%2B8%3D\\";
+          String ur = "http://static-asset-internal.flashexpress.com/backyardUpload/1617724272-4c744c7e03cf4fad951c81e5c6398bb4.jpg";
+
+
+          String regUrl = "^([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~\\\\/])+$";
+          Pattern p = Pattern.compile(regUrl);
+          Matcher m = p.matcher(ur);
+          if (m.matches()) {
+              System.out.println(111);
+          }
+
+        /*  String ur = "httppp://static-asset-internal.flashexpress.com/backyardUpload/1617724272-4c744c7e03cf4fad951c81e5c6398bb4.jpg";
+
+          if (ur.startsWith("http://") || ur.startsWith("https://")) {
+
+          }
+
+
+      }*/
+
+    @Test
+    public void ttest() {
+        checkNotNull("123", "hh",null);
+    }
+
+    private void checkNotNull(String code, Object... objs) {
+        if (objs == null) {
+            throw new RuntimeException(code);
+        }
+
+        if (objs.length > 1) {
+            for (Object obj : objs) {
+                if (obj == null) {
+                    throw new RuntimeException(code);
+                }
+            }
+        }
+    }
+
+    static class Ha {
+
+        Person p;
+
+        public Person getP() {
+            return p;
+        }
+
+        public void setP(Person p) {
+            this.p = p;
+        }
+
+        @Override
+        public String toString() {
+            return "Ha{" +
+                    "p=" + p +
+                    '}';
+        }
+    }
+
     static class Person {
         private Integer groupId;
         private String name;
@@ -103,6 +178,15 @@ public class LeaveDemo {
             this.groupId = groupId;
             this.name = name;
             this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "Person{" +
+                    "groupId=" + groupId +
+                    ", name='" + name + '\'' +
+                    ", age=" + age +
+                    '}';
         }
     }
 }
