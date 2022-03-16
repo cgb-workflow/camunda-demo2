@@ -6,7 +6,7 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.commons.utils.IoUtil;
-import org.hgq.App;
+import org.hgq.CamundaApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +20,7 @@ import java.util.zip.ZipInputStream;
  * 流程部署
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = App.class)
+@SpringBootTest(classes = CamundaApplication.class)
 public class CamundaRepositoryDemo {
     RepositoryService repositoryService;
 

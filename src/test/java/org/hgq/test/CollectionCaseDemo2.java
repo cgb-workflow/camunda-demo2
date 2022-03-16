@@ -7,7 +7,7 @@ import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.repository.ProcessDefinitionQuery;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
-import org.hgq.App;
+import org.hgq.CamundaApplication;
 import org.hgq.domain.base.CollectionCase;
 import org.hgq.mapper.base.CollectionCaseMapper;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * @create: 2021-08-19 11:41
  **/
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = App.class)
+@SpringBootTest(classes = CamundaApplication.class)
 public class CollectionCaseDemo2 {
 
 

@@ -36,11 +36,11 @@
 
 
         <!-- https://mvnrepository.com/artifact/org.camunda.bpm.springboot/camunda-bpm-spring-boot-starter -->
-       <!-- <dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter</artifactId>
-            <version>7.14.0</version>
-        </dependency>-->
+        <!-- <dependency>
+             <groupId>org.camunda.bpm.springboot</groupId>
+             <artifactId>camunda-bpm-spring-boot-starter</artifactId>
+             <version>7.14.0</version>
+         </dependency>-->
 
 
         <dependency>
@@ -66,6 +66,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+
     </dependencies>
     <build>
         <pluginManagement>

@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //@EnableProcessApplication
 @SpringBootApplication
 @MapperScan(basePackages = {"org.hgq.mapper.base"})
-public class App {
+public class CamundaApplication {
     public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+        SpringApplication.run(CamundaApplication.class, args);
     }
 
 

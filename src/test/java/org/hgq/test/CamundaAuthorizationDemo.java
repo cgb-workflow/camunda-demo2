@@ -2,7 +2,7 @@ package org.hgq.test;
 
 import org.camunda.bpm.engine.AuthorizationService;
 import org.camunda.bpm.engine.authorization.*;
-import org.hgq.App;
+import org.hgq.CamundaApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,7 @@ import java.util.List;
  * 授权操作
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = App.class)
+@SpringBootTest(classes = CamundaApplication.class)
 public class CamundaAuthorizationDemo {
     @Autowired
     AuthorizationService authorizationService;

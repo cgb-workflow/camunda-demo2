@@ -7,7 +7,7 @@ import org.camunda.bpm.engine.impl.persistence.entity.GroupEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.TenantEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.UserEntity;
 import org.camunda.commons.utils.IoUtil;
-import org.hgq.App;
+import org.hgq.CamundaApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @create: 2021-08-18 15:58
  **/
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = App.class)
+@SpringBootTest(classes = CamundaApplication.class)
 public class CamundaUserDemo {
 
     @Autowired
