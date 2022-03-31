@@ -23,6 +23,7 @@ mybatis:
 camunda:
   bpm:
     #配置账户密码来访问Camunda自带的管理界面
+
     admin-user:
       id: kermit
       password: superSecret

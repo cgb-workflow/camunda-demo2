@@ -22,7 +22,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description:
@@ -31,7 +33,7 @@ import java.util.List;
  **/
 @SpringBootTest(classes = CamundaApplication.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CreditAuditDemo {
+public class CreditAuditDemo2 {
 
     @Autowired
     RuntimeService runtimeService;
@@ -54,8 +56,8 @@ public class CreditAuditDemo {
     public void deploy() {
         Deployment deployment = repositoryService
                 .createDeployment()
-                .name("信审审核1")
-                .addClasspathResource("credit_audit_1.bpmn")
+                .name("信审审核2")
+                .addClasspathResource("credit_audit_2.bpmn")
                 .deploy();
         System.out.println("deployment: " + deployment);//1cf006b9-a528-11ec-be05-88b11139d73a
 
@@ -80,12 +82,30 @@ public class CreditAuditDemo {
     }
 
 
+    @Test
+    public void findGroupTask() {
+        List<Task> taskList = taskService
+                .createTaskQuery()
+                .taskCandidateGroup("credit_audit")
+                .list();
+        for (Task task : taskList) {
+            System.out.println("#############");
+            System.out.println(task.getId());
+            System.out.println(task.getName());
+            System.out.println(task.getCreateTime());
+            System.out.println(task.getPriority());
+            System.out.println(task.getExecutionId());
+            System.out.println("#############");
+        }
+    }
+
+
     /**
      * 用户首次提交，生成信审任务，生成信审审核记录，并且启动流程
      * 用户补件提交，更新信审任务，生成信审审核记录，并且启动流程
      */
     @Test
-    public void saveCreditAuditAndStartProcess() {
+    public void startProcess() {
 
         //信审任务
         Integer creditAuditId = 123;
@@ -96,9 +116,14 @@ public class CreditAuditDemo {
         //业务逻辑代码完成
 
 
+
         //启动审核流程，并且设置业务key是 creditAuditRecordId（信审审核记录id）
-        String processDefinitionKey = "credit_audit_1";
-        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinitionKey, creditAuditRecordId.toString());
+        String processDefinitionKey = "credit_audit_2";
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("candidateGroups","credit_audit");
+
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinitionKey, creditAuditRecordId.toString(),variables);
         System.out.println("processInstance: " + processInstance.getId());
         //把流程实例id 与 信审审核记录 相关联 ，credit_audit_record 表新增个字段 process_instance_id
 
@@ -111,31 +136,28 @@ public class CreditAuditDemo {
 
         //根据 creditAuditId 查询 credit_audit_record 表，得到 result=99(初始化)状态的 唯一一条记录，然后得到 process_instance_id
 
-        String userId = "9999";
+        String userId = "777";
 
-        String process_instance_id = "bdb8f0cf-a530-11ec-be35-88b11139d73a";
+        String process_instance_id = "46a6f91a-a668-11ec-adb6-88b11139d73a";
         //根据 process_instance_id 查询到 taskId
         Task currentTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
 
         //认领任务,并且完成 开始审核 任务
         taskService.claim(currentTask.getId(), userId);
-        taskService.setAssignee(currentTask.getId(), userId);
-        //完成 开始审核 任务
+        // taskService.setAssignee(currentTask.getId(), userId);
+
+      /*  //完成 开始审核 任务
         taskService.complete(currentTask.getId());
 
 
-        //然后查询出下一个节点任务(真正审核这个任务)，并且设置这个任务的办理人为当前用户
+        //然后查询出下一个节点任务，设置办理人为当前用户
         Task nextTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
 
-        //认领 真正审核这个任务
-        taskService.claim(nextTask.getId(), userId);
+        //认领任务,并且完成 开始审核 任务
+        taskService.claim(nextTask.getId(), userId);*/
 
 
         //相应的业务逻辑处理
-
-
-
-
 
     }
 
@@ -153,13 +175,8 @@ public class CreditAuditDemo {
         Task currentTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
 
 
-        //如果这个任务的办理人就是当前登陆的用户，允许办理
-        if (userId.equals(currentTask.getAssignee())) {
-            //完成 真正审核 任务
-            taskService.complete(currentTask.getId());
-        }else {
-
-        }
+        //完成 真正审核 任务
+        taskService.complete(currentTask.getId());
 
 
         //相应的业务逻辑处理
@@ -208,4 +225,7 @@ public class CreditAuditDemo {
         SimpleDateFormat sdf = new SimpleDateFormat(strDateFormat);
         return sdf.format(date);
     }
+
+
+
 }
