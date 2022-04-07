@@ -7,4 +7,5 @@ package org.hgq.service;
  **/
 public interface OrderService {
      String getOrder();
+     int increment();
 }

@@ -10,9 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    int a;
     @Override
     public String getOrder() {
         return "a";
+    }
+
+    @Override
+    public int increment() {
+        return a++;
     }
 
 }
