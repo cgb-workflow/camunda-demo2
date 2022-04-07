@@ -9,6 +9,7 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.repository.ProcessDefinitionQuery;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.task.IdentityLinkType;
 import org.camunda.bpm.engine.task.Task;
 import org.hgq.CamundaApplication;
 import org.junit.Test;
@@ -19,10 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @description:
@@ -115,7 +113,7 @@ public class CreditAuditDemo3 {
 
 
         //启动审核流程，并且设置业务key是 creditAuditRecordId（信审审核记录id）
-        String processDefinitionKey = "credit_audit_3";
+        String processDefinitionKey = "credit_audit_v1";
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("candidateGroups", "credit_audit");
@@ -135,17 +133,63 @@ public class CreditAuditDemo3 {
 
         String userId = "888";
 
-        String process_instance_id = "f0272168-a6aa-11ec-a6d0-88b11139d73a";
+        String process_instance_id = "f3437f65-b097-11ec-bdcb-88b11139d73a";
         //根据 process_instance_id 查询到 taskId
         Task currentTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
 
         //认领任务,设置变量 记录任务开始时间
 
-        taskService.claim(currentTask.getId(), userId);
+        taskService.setAssignee(currentTask.getId(), userId);
         taskService.setVariable(currentTask.getId(), "startAuditTime", dateFormat(new Date()));
 
 
         //相应的业务逻辑处理
+
+    }
+
+    //开始审核 ，就是认领审批任务
+    @Test
+    public void setAssignee() {
+
+        //根据 creditAuditId 查询 credit_audit_record 表，得到 result=99(初始化)状态的 唯一一条记录，然后得到 process_instance_id
+
+        String userId = "999";
+
+        String process_instance_id = "f3437f65-b097-11ec-bdcb-88b11139d73a";
+        //根据 process_instance_id 查询到 taskId
+        Task currentTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
+
+        //认领任务,设置变量 记录任务开始时间
+
+        taskService.setAssignee(currentTask.getId(), userId);
+
+
+    }
+
+
+    @Test
+    public void query() {
+
+        String businessKey ="456" ;
+
+        List<HistoricTaskInstance> list1 = historyService.createHistoricTaskInstanceQuery().processInstanceBusinessKey(businessKey).list();
+        for (HistoricTaskInstance historicTaskInstance : list1) {
+
+
+
+            HistoricIdentityLinkLogQuery historicIdentityLinkLogQuery = historyService.createHistoricIdentityLinkLogQuery();
+
+            List<HistoricIdentityLinkLog> list = historicIdentityLinkLogQuery
+                    .taskId(historicTaskInstance.getId())
+                    .type(IdentityLinkType.ASSIGNEE)
+                    .operationType("add")
+                    .list();
+            for (HistoricIdentityLinkLog historicIdentityLinkLog : list) {
+
+                System.out.println(historicIdentityLinkLog.getUserId());
+
+            }
+        }
 
     }
 
