@@ -213,7 +213,6 @@ public class CreditAuditDemo2 {
             System.out.println("historicTaskInstance.getStartTime(): " + dateFormat(historicTaskInstance.getStartTime()));
             System.out.println("historicTaskInstance.getEndTime(): " + dateFormat(historicTaskInstance.getEndTime()));
 
-
             System.out.println("==============================");
         }
 

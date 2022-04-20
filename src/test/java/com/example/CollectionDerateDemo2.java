@@ -57,8 +57,8 @@ public class CollectionDerateDemo2 {
     public void deploy() {
         Deployment deployment = repositoryService
                 .createDeployment()
-                .name("催收减免申请2")
-                .addClasspathResource("collection_derate_2.bpmn")
+                .name("催收减免申请1")
+                .addClasspathResource("collection_derate_v1.bpmn")
                 .deploy();
         System.out.println("deployment: " + deployment);//1cf006b9-a528-11ec-be05-88b11139d73a
 
