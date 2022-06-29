@@ -18,7 +18,7 @@
     </bpmn:sequenceFlow>
     <bpmn:userTask id="withhold" name="待扣款">
       <bpmn:extensionElements>
-        <camunda:taskListener class="com.flashmoney.ccc.core.manager.listener.UserTaskDueDateListener" event="create" />
+        <camunda:taskListener class="com.flashmoney.ccc.core.manager.listener.WithholdTaskListener" event="create" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_01be7jf</bpmn:incoming>
       <bpmn:incoming>Flow_04372or</bpmn:incoming>
@@ -28,8 +28,7 @@
     </bpmn:userTask>
     <bpmn:userTask id="first_audit" name="初审">
       <bpmn:extensionElements>
-        <camunda:taskListener class="com.flashmoney.ccc.core.manager.listener.UserTaskDueDateListener" event="create" />
-        <camunda:taskListener class="com.flashmoney.ccc.core.manager.listener.TestListener" event="create" />
+        <camunda:taskListener class="com.flashmoney.ccc.core.manager.listener.AuditTaskListener" event="create" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0udczmg</bpmn:incoming>
       <bpmn:outgoing>Flow_1nk5qfi</bpmn:outgoing>
@@ -37,18 +36,13 @@
     <bpmn:boundaryEvent id="first_audit_timeout_job" name="初审超时调度任务" cancelActivity="false" attachedToRef="first_audit">
       <bpmn:outgoing>Flow_1ny30j3</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0kw5w94">
-        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">0 0/2 * * * ?</bpmn:timeCycle>
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">0 0/3 * * * ?</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:sequenceFlow id="Flow_1ny30j3" sourceRef="first_audit_timeout_job" targetRef="Activity_1vmzlak" />
-    <bpmn:serviceTask id="Activity_1vmzlak" name="初审超时处理" camunda:class="org.hgq.delegate.TestDelegate">
+    <bpmn:sequenceFlow id="Flow_1ny30j3" sourceRef="first_audit_timeout_job" targetRef="first_audit_timeout_service_task" />
+    <bpmn:serviceTask id="first_audit_timeout_service_task" name="初审超时处理" camunda:class="org.hgq.delegate.TestDelegate">
       <bpmn:incoming>Flow_1ny30j3</bpmn:incoming>
-      <bpmn:outgoing>Flow_1khbc64</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="Event_0ow2yt7">
-      <bpmn:incoming>Flow_1khbc64</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1khbc64" sourceRef="Activity_1vmzlak" targetRef="Event_0ow2yt7" />
     <bpmn:exclusiveGateway id="Gateway_0fhoqpk">
       <bpmn:incoming>Flow_1nk5qfi</bpmn:incoming>
       <bpmn:outgoing>Flow_1vu4jda</bpmn:outgoing>
@@ -69,10 +63,13 @@
     <bpmn:sequenceFlow id="Flow_02rpwaa" name="审核通过" sourceRef="Gateway_0fhoqpk" targetRef="Gateway_04n9unt">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${timeout==false&amp;&amp;audit_result==5}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1wikqpy" name="利息金额大于≥500泰铢or利息比例＞10%" sourceRef="Gateway_04n9unt" targetRef="second_audit">
+    <bpmn:sequenceFlow id="Flow_1wikqpy" name="利息金额大于≥500泰铢 或者 利息比例＞10%" sourceRef="Gateway_04n9unt" targetRef="second_audit">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ interestRatio&gt;10 || interestAmount&gt;500}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="second_audit" name="复审">
+      <bpmn:extensionElements>
+        <camunda:taskListener class="com.flashmoney.ccc.core.manager.listener.AuditTaskListener" event="create" />
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1wikqpy</bpmn:incoming>
       <bpmn:outgoing>Flow_0o6rszk</bpmn:outgoing>
     </bpmn:userTask>
@@ -85,8 +82,8 @@
     <bpmn:endEvent id="Event_02i0wuq">
       <bpmn:incoming>Flow_0i256qn</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0i256qn" name="代扣成功" sourceRef="Gateway_0u6rgto" targetRef="Event_02i0wuq">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${withhold==1}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0i256qn" name="代扣任务超时或者代扣成功" sourceRef="Gateway_0u6rgto" targetRef="Event_02i0wuq">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${timeout==true||withhold==1}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_04372or" name="代扣失败" sourceRef="Gateway_0u6rgto" targetRef="withhold">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${withhold==0}</bpmn:conditionExpression>
@@ -97,17 +94,12 @@
         <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">0 0/5 * * * ?</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:serviceTask id="Activity_0lsyrtd" name="扣款超时处理" camunda:class="org.hgq.delegate.TestDelegate">
+    <bpmn:serviceTask id="withhold_audit_timeout_service_task" name="扣款超时处理" camunda:class="org.hgq.delegate.TestDelegate">
       <bpmn:incoming>Flow_04t5t7a</bpmn:incoming>
-      <bpmn:outgoing>Flow_1w8sajd</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_04t5t7a" sourceRef="withhold_timeout_job" targetRef="Activity_0lsyrtd" />
-    <bpmn:endEvent id="Event_0vhpc01">
-      <bpmn:incoming>Flow_1w8sajd</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1w8sajd" sourceRef="Activity_0lsyrtd" targetRef="Event_0vhpc01" />
-    <bpmn:sequenceFlow id="Flow_1t9wbpk" name="罚息和催收费比例≤100% + 利息比例≤10%且利息金额不超过500泰铢" sourceRef="Gateway_04n9unt" targetRef="withhold">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${penaltyRatio&lt;=100  &amp;&amp; interestRatio&lt;=10 &amp;&amp; interestAmount&lt;=500}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_04t5t7a" sourceRef="withhold_timeout_job" targetRef="withhold_audit_timeout_service_task" />
+    <bpmn:sequenceFlow id="Flow_1t9wbpk" name="罚息和催收费比例≤100%  或者（ 利息比例≤10%且利息金额不超过500泰铢）" sourceRef="Gateway_04n9unt" targetRef="withhold">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${penaltyRatio&lt;=100  || ( interestRatio&lt;=10 &amp;&amp; interestAmount&lt;=500)}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0tragt8">
       <bpmn:incoming>Flow_0o6rszk</bpmn:incoming>
@@ -121,20 +113,15 @@
     <bpmn:sequenceFlow id="Flow_11a4k9e" name="超时关闭或者审核拒绝" sourceRef="Gateway_0tragt8" targetRef="Event_1w8fwun">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${timeout==true||audit_result==6}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:endEvent id="Event_0gohy9y">
-      <bpmn:incoming>Flow_0qwom93</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0qwom93" sourceRef="Activity_1eoo159" targetRef="Event_0gohy9y" />
     <bpmn:boundaryEvent id="second_audit_timeout_job" name="复审超时调度任务" cancelActivity="false" attachedToRef="second_audit">
       <bpmn:outgoing>Flow_0r9i98j</bpmn:outgoing>
       <bpmn:timerEventDefinition id="TimerEventDefinition_0j1yhp6">
         <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">0 0/5 * * * ?</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
-    <bpmn:sequenceFlow id="Flow_0r9i98j" sourceRef="second_audit_timeout_job" targetRef="Activity_1eoo159" />
-    <bpmn:serviceTask id="Activity_1eoo159" name="复审超时处理" camunda:class="org.hgq.delegate.TestDelegate">
+    <bpmn:sequenceFlow id="Flow_0r9i98j" sourceRef="second_audit_timeout_job" targetRef="second_audit_timeout_service_task" />
+    <bpmn:serviceTask id="second_audit_timeout_service_task" name="复审超时处理" camunda:class="org.hgq.delegate.TestDelegate">
       <bpmn:incoming>Flow_0r9i98j</bpmn:incoming>
-      <bpmn:outgoing>Flow_0qwom93</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_0u3v14r" name="审核通过" sourceRef="Gateway_0tragt8" targetRef="withhold">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${timeout==false&amp;&amp;audit_result==5}</bpmn:conditionExpression>
@@ -166,10 +153,6 @@
         <di:waypoint x="420" y="638" />
         <di:waypoint x="420" y="680" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1khbc64_di" bpmnElement="Flow_1khbc64">
-        <di:waypoint x="420" y="760" />
-        <di:waypoint x="420" y="812" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1nk5qfi_di" bpmnElement="Flow_1nk5qfi">
         <di:waypoint x="470" y="580" />
         <di:waypoint x="525" y="580" />
@@ -193,7 +176,7 @@
         <di:waypoint x="720" y="327" />
         <di:waypoint x="780" y="327" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="635" y="395" width="89" height="66" />
+          <dc:Bounds x="635" y="395" width="89" height="80" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wikqpy_di" bpmnElement="Flow_1wikqpy">
@@ -201,7 +184,7 @@
         <di:waypoint x="720" y="680" />
         <di:waypoint x="800" y="680" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="628" y="640" width="84" height="40" />
+          <dc:Bounds x="629" y="640" width="84" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0o6rszk_di" bpmnElement="Flow_0o6rszk">
@@ -210,14 +193,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_11a4k9e_di" bpmnElement="Flow_11a4k9e">
         <di:waypoint x="980" y="705" />
-        <di:waypoint x="980" y="752" />
+        <di:waypoint x="980" y="792" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1001" y="726" width="77" height="27" />
+          <dc:Bounds x="1001" y="755" width="77" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0qwom93_di" bpmnElement="Flow_0qwom93">
-        <di:waypoint x="840" y="870" />
-        <di:waypoint x="840" y="922" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0r9i98j_di" bpmnElement="Flow_0r9i98j">
         <di:waypoint x="840" y="738" />
@@ -237,7 +216,7 @@
         <di:waypoint x="850" y="188" />
         <di:waypoint x="850" y="270" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="893" y="170" width="45" height="14" />
+          <dc:Bounds x="898" y="170" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_16hmvke_di" bpmnElement="Flow_16hmvke">
@@ -248,15 +227,11 @@
         <di:waypoint x="810" y="252" />
         <di:waypoint x="810" y="158" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1w8sajd_di" bpmnElement="Flow_1w8sajd">
-        <di:waypoint x="860" y="118" />
-        <di:waypoint x="912" y="118" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0i256qn_di" bpmnElement="Flow_0i256qn">
         <di:waypoint x="1005" y="290" />
-        <di:waypoint x="1082" y="290" />
+        <di:waypoint x="1112" y="290" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1003" y="272" width="44" height="14" />
+          <dc:Bounds x="1011" y="256" width="78" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
@@ -271,10 +246,7 @@
       <bpmndi:BPMNShape id="Activity_14q5zji_di" bpmnElement="first_audit">
         <dc:Bounds x="370" y="540" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0ow2yt7_di" bpmnElement="Event_0ow2yt7">
-        <dc:Bounds x="402" y="812" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0od32uh_di" bpmnElement="Activity_1vmzlak">
+      <bpmndi:BPMNShape id="Activity_0od32uh_di" bpmnElement="first_audit_timeout_service_task">
         <dc:Bounds x="370" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0fhoqpk_di" bpmnElement="Gateway_0fhoqpk" isMarkerVisible="true">
@@ -292,29 +264,26 @@
       <bpmndi:BPMNShape id="Gateway_0tragt8_di" bpmnElement="Gateway_0tragt8" isMarkerVisible="true">
         <dc:Bounds x="955" y="655" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1w8fwun_di" bpmnElement="Event_1w8fwun">
-        <dc:Bounds x="962" y="752" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0gohy9y_di" bpmnElement="Event_0gohy9y">
-        <dc:Bounds x="822" y="922" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1a1qs3l_di" bpmnElement="Activity_1eoo159">
+      <bpmndi:BPMNShape id="Activity_1a1qs3l_di" bpmnElement="second_audit_timeout_service_task">
         <dc:Bounds x="790" y="790" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0jdlntf_di" bpmnElement="withhold">
         <dc:Bounds x="780" y="270" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0lsyrtd_di" bpmnElement="Activity_0lsyrtd">
+      <bpmndi:BPMNShape id="Activity_0lsyrtd_di" bpmnElement="withhold_audit_timeout_service_task">
         <dc:Bounds x="760" y="78" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0vhpc01_di" bpmnElement="Event_0vhpc01">
-        <dc:Bounds x="912" y="100" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0u6rgto_di" bpmnElement="Gateway_0u6rgto" isMarkerVisible="true">
         <dc:Bounds x="955" y="265" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_02i0wuq_di" bpmnElement="Event_02i0wuq">
-        <dc:Bounds x="1082" y="272" width="36" height="36" />
+        <dc:Bounds x="1112" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1069" y="315" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1w8fwun_di" bpmnElement="Event_1w8fwun">
+        <dc:Bounds x="962" y="792" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0ztl00j_di" bpmnElement="first_audit_timeout_job">
         <dc:Bounds x="402" y="602" width="36" height="36" />
@@ -331,7 +300,7 @@
       <bpmndi:BPMNShape id="Event_0z2t4rk_di" bpmnElement="withhold_timeout_job">
         <dc:Bounds x="792" y="252" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="768" y="295" width="89" height="14" />
+          <dc:Bounds x="725" y="221" width="89" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

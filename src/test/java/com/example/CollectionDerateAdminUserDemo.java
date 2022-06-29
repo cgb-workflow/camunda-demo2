@@ -1,9 +1,6 @@
 package com.example;
 
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -44,6 +41,8 @@ public class CollectionDerateAdminUserDemo {
 
     @Autowired
     RepositoryService repositoryService;
+    @Autowired
+    IdentityService identityService;
 
     @Test
     public void tttt() {
@@ -80,24 +79,28 @@ public class CollectionDerateAdminUserDemo {
         //${excludeInterest==false || derateAmount>500}
         Map<String, Object> variables = new HashMap<>();
 
-        variables.put("excludeInterest", false);
-        variables.put("derateAmount", 499.15);
+        variables.put("excludeInterest", true);
+        variables.put("derateAmount", 500.55);
+
+        identityService.setAuthenticatedUserId("zhang333");
 
         ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(processDefinitionKey, variables);
         System.out.println("processInstance: " + processInstance.getId());
         //把流程实例id 与 信审审核记录 相关联 ，credit_audit_record 表新增个字段 process_instance_id
 
-
+        Task currentTask = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+        String userId = "888第13";
+        taskService.claim(currentTask.getId(), userId);
     }
 
     //开始审核 ，就是认领审批任务
     @Test
     public void claim() {
 
-            String userId = "888第二个主管";
+        String userId = "888第1";
         //String userId = "999经理";
 
-        String process_instance_id = "cf406814-f758-11ec-bc95-88b11139d73a";
+        String process_instance_id = "896af4db-f75d-11ec-90d9-88b11139d73a";
         //根据 process_instance_id 查询到 taskId
         Task currentTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
 
@@ -111,7 +114,6 @@ public class CollectionDerateAdminUserDemo {
         taskService.claim(currentTask.getId(), userId);
 
 
-
         //相应的业务逻辑处理
 
 
@@ -119,6 +121,32 @@ public class CollectionDerateAdminUserDemo {
 
 
     }
+
+    @Test
+    public void complete() {
+
+        String userId = "888第1";
+        //String userId = "999经理";
+
+        String process_instance_id = "705dbd7c-f76d-11ec-93d5-88b11139d73a";
+        //根据 process_instance_id 查询到 taskId
+        Task currentTask = taskService.createTaskQuery().processInstanceId(process_instance_id).singleResult();
+
+
+        Map<String, Object> vars = new HashMap<>();
+
+        vars.put("timeout", true);
+        vars.put("audit_result", 5);
+        vars.put("interestRatio", 12);
+        vars.put("interestAmount", 501);
+        taskService.complete(currentTask.getId(), vars);
+
+
+        System.out.println("=============");
+
+
+    }
+
 
     //开始审核 ，就是认领审批任务
    /* @Test
