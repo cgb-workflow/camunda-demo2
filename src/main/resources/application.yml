@@ -39,7 +39,7 @@ camunda:
       # create_drop： 在activiti启动时创建表，在关闭时删除表（必须手动关闭引擎，才能删除表）。（单元测试常用）
       # drop-create： 在activiti启动时删除原来的旧表，然后在创建新表（不需要手动关闭引擎）。
 
-      schema-update: false
+      schema-update: drop-create
     #禁止自动部署resources下面的bpmn文件
     auto-deployment-enabled: false
 

@@ -35,7 +35,6 @@ public class WithholdTaskListener implements TaskListener {
             Date time = instance.getTime();
             delegateTask.setDueDate(time);
 
-
         }
 
     }
